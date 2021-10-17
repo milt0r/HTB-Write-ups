@@ -160,13 +160,11 @@ $krb5asrep$23$svc-alfresco@HTB.LOCAL:e8cc9685bd277e4982cc42f992002af5$95ac8f4ac9
 
 ### Kerberos Pre-auth
 
-I recall in my Active Directory days *rarely* seeing applications running on systems in enterprise enviorments that required this to be turned off for accounts. In all of the AD risk assessments I performed over the years, I think I saw just a handfull of environments with pre-auth disabled. Why's it important? 
+In the two or so years I performed AD risk assessments, I only remember seeing this disabled a handful of times. Normally there was some excuse about an "old application." 
 
-**TL;DR:** It prevents offline attacks against the TGT. 
+When pre-auth is enabled, the Key Distribution Center (KDC) challenges the client to use their password hash to encrypt a timestamp. If the KDC, having a copy of the user's password hash, can decrypt and validate that it's within the acceptable range (default +/- five minutes), it'll respond with the ticket-granting ticket (TGT). The TGT is encrypted with the user's password hash. The client can decrypt the TGT only if it has the password hash.
 
-When pre-auth is enabled, the Key Distribution Center (KDC) challenges the client to use their password hash to encrypt a timestamp. If the KDC, having a copy of the user's password hash, can decrypt and validate that it's within the acceptable range (default +/- five minutes), it'll respond with the ticket-granting ticket (TGT). The TGT is encrypted with the user's password hash. The client can decrypt the TGT only if it has the password.
-
-If we disable the pre-authentication requirement, the KDC returns the TGT to the caller. This means that any attacker can get the TGT and attempt to crack the password offline, which is what we accomplished here. 
+If we disable the pre-authentication requirement, the KDC returns the TGT to the caller. This means that any attacker can get the TGT and attempt to crack the password offline, which is what was accomplished here. 
 
 ## Privilege Escalation
 
