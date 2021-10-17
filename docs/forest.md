@@ -18,7 +18,7 @@ I started with nmap, and if the box names wasn't enough of a hint, surprise, It'
 └─$ nmap -p- --min-rate=10000 -T5 -o nmap_all forest
 ```
 
-![Alt text](/forest/nmap-1.jpg "Nmap Output")
+![Alt text](../images/nmap-1.jpg "Nmap Output")
 
 Next, I tried to enumerate all that is SMB.
 
@@ -29,7 +29,7 @@ Next, I tried to enumerate all that is SMB.
 
 The shares were all of the standard Windows/DC shares and I didn't have access to any of them. I was able to get a list of groups and user accounts. 
 
-![Alt text](../forest/nmap-users.jpg "User snip")
+![Alt text](../images/nmap-users.jpg "User snip")
 
 The user account list contained a few interesting users:
 
