@@ -2,9 +2,9 @@
 
 - [Forest](#forest)
   - [Recon](#recon)
+    - [Kerberos Pre-auth](#kerberos-pre-auth)
   - [User Compromise](#user-compromise)
     - [Crack the Hash](#crack-the-hash)
-    - [Kerberos Pre-auth](#kerberos-pre-auth)
   - [Privilege Escalation](#privilege-escalation)
     - [Account Operators](#account-operators)
     - [Remote Management Users](#remote-management-users)
@@ -121,7 +121,7 @@ rpcclient $> queryuser 0x47b
 Next, I tried ldapdomaindump and ldeep. ldeep returned nothing, and ldapdomaindump encountered an exception that looks to be a [known issue](https://github.com/dirkjanm/ldapdomaindump/issues/26) with that tool and this box. 
 
 
-From here I started scrolling through the PayloadsAllTheThings AD Attacks article looking for something useful that didn't require creds. Eventually, I landed on Impacket's **GetNPUsers.py.** If you read the section on that tool (link below), it coincidentally mentions svc-alfresco in the example. 
+From here I started scrolling through the PayloadsAllTheThings AD Attacks article looking for something useful that didn't require creds. Eventually, I landed on Impacket's **GetNPUsers.py.** If you read the section on that tool (link below), it coincidentally mentions svc-alfresco in the example. This tool checks for accounts in the directory where Kerberos pre-auth is disabled (UAC flag 0x400000).
 
 ```bash
 ┌──(milt0r㉿kali)-[~/htb/forest]
@@ -134,6 +134,14 @@ svc-alfresco  CN=Service Accounts,OU=Security Groups,DC=htb,DC=local  2021-10-16
 ```
 
 Great. 
+
+### Kerberos Pre-auth
+
+In the two or so years I performed AD risk assessments I only remember seeing this disabled a handful of times. It's been so long that I can't even remember the excuses, but I think "legacy systems something something can't change it" was it. 
+
+When pre-auth is enabled, the Key Distribution Center (KDC) challenges the client to use their password hash to encrypt a timestamp. If the KDC, having a copy of the user's password hash, can decrypt and validate that it's within the acceptable range (default +/- five minutes), it'll respond with the ticket-granting ticket (TGT). The TGT is encrypted with the user's password hash. The client can decrypt the TGT only if it has the password hash.
+
+If we disable the pre-authentication requirement, the KDC returns the TGT to any caller. This means that any attacker can get the TGT and attempt to crack the password offline, which is what was accomplished here. 
 
 ## User Compromise
 
@@ -162,14 +170,6 @@ $krb5asrep$23$svc-alfresco@HTB.LOCAL:e8cc9685bd277e4982cc42f992002af5$95ac8f4ac9
 ```
 
 **svc-alfresco:s3rvice**
-
-### Kerberos Pre-auth
-
-In the two or so years I performed AD risk assessments I only remember seeing this disabled a handful of times. It's been so long that I can't even remember the excuses, but I think "legacy systems something something can't change it" was it. 
-
-When pre-auth is enabled, the Key Distribution Center (KDC) challenges the client to use their password hash to encrypt a timestamp. If the KDC, having a copy of the user's password hash, can decrypt and validate that it's within the acceptable range (default +/- five minutes), it'll respond with the ticket-granting ticket (TGT). The TGT is encrypted with the user's password hash. The client can decrypt the TGT only if it has the password hash.
-
-If we disable the pre-authentication requirement, the KDC returns the TGT to any caller. This means that any attacker can get the TGT and attempt to crack the password offline, which is what was accomplished here. 
 
 ## Privilege Escalation
 
